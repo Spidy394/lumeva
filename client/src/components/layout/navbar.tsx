@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import CardNav from "../ui/cardnav";
 
 type NavLink = {
@@ -17,8 +17,8 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     label: "About",
-    bgColor: "#0D0716",
-    textColor: "#fff",
+    bgColor: "#F5F3FF", // soft violet background
+    textColor: "#4C1D95", // deep violet text
     links: [
       { label: "Company", ariaLabel: "About Company" },
       { label: "Careers", ariaLabel: "About Careers" }
@@ -26,8 +26,8 @@ const navItems: NavItem[] = [
   },
   {
     label: "Projects",
-    bgColor: "#170D27",
-    textColor: "#fff",
+    bgColor: "#FDF4FF", // soft pink tint
+    textColor: "#86198F", // magenta tone
     links: [
       { label: "Featured", ariaLabel: "Featured Projects" },
       { label: "Case Studies", ariaLabel: "Project Case Studies" }
@@ -35,8 +35,8 @@ const navItems: NavItem[] = [
   },
   {
     label: "Contact",
-    bgColor: "#271E37",
-    textColor: "#fff",
+    bgColor: "#EEF2FF", // soft indigo tint
+    textColor: "#3730A3",
     links: [
       { label: "Email", ariaLabel: "Email us" },
       { label: "Twitter", ariaLabel: "Twitter" },
@@ -48,14 +48,15 @@ const navItems: NavItem[] = [
 export default function MainNav() {
   return (
     <CardNav
-      logoAlt="Lumeva Logo"
-      items={navItems}
-      baseColor="#ffffff"
-      menuColor="#000000"
-      buttonBgColor="#111111"
-      buttonTextColor="#ffffff"
-      ease="power3.out"
-      theme="light"
-    />
+  logoAlt="Lumeva Logo"
+  logo="/Lumeva.svg"
+  items={navItems}
+  baseColor="white"   // glass base
+  menuColor="#111827"                 // neutral dark gray
+  buttonBgColor="#4C1D95"             // deep violet
+  buttonTextColor="#ffffff"
+  ease="power3.out"
+  theme="light"
+/>
   );
 }

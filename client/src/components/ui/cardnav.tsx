@@ -186,8 +186,10 @@ const CardNav: React.FC<CardNavProps> = ({
           </div>
 
           <div className="logo-container flex items-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 order-1 md:order-none">
-            <img src={logo} alt={logoAlt} className="logo h-[28px]" />
-          </div>
+ <span className="text-xl md:text-2xl font-semibold tracking-tight text-violet-500">
+  Lumeva
+</span>
+</div>
 
           <button
             type="button"
