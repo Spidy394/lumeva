@@ -3,6 +3,7 @@
 import { useState } from "react";
 import CreatePost from "./createpost";
 import { Heart, MessageCircle, UserPlus } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -21,6 +22,9 @@ type Post = {
 };
 
 export default function FeedPage() {
+  const { data: session } = useSession();
+  const userName = session?.user?.name?.split(" ")[0] || "Builder";
+
   const [posts, setPosts] = useState<Post[]>([
     {
       id: 1,
@@ -62,7 +66,11 @@ export default function FeedPage() {
       {/* Greeting */}
 <div className="space-y-1">
   <h1 className="text-2xl font-semibold">
+<<<<<<< HEAD
     {getGreeting()}, Builder 
+=======
+    {getGreeting()}, {userName} 👋
+>>>>>>> a8f206fe5ec832a45acde21cedbdb7d42e3e757d
   </h1>
   <p className="text-gray-500">
     What are you building today?

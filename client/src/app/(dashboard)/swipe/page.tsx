@@ -1,47 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   motion,
   useMotionValue,
   useTransform,
+  AnimatePresence,
 } from "framer";
+import { apiFetch } from "@/lib/api";
 
-const users = [
-  {
-    id: 1,
-    name: "Ayan",
-    bio: "Full stack dev building SaaS.",
-    skills: ["React", "Node"],
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800",
-  },
-  {
-    id: 2,
-    name: "Riya",
-    bio: "UI/UX Designer crafting experiences.",
-    skills: ["Figma", "Brand"],
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800",
-  },
-  {
-    id: 3,
-    name: "Dev",
-    bio: "AI Engineer. ML + Product.",
-    skills: ["Python", "ML"],
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800",
-  },
-];
+type DiscoverUser = {
+  id: string;
+  name: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  image: string | null;
+  skillsToTeach: { skillId: string; name: string }[];
+  skillsToLearn: { skillId: string; name: string }[];
+};
 
 export default function SwipePage() {
+  const [users, setUsers] = useState<DiscoverUser[]>([]);
   const [index, setIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [matched, setMatched] = useState(false);
 
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
+
+  useEffect(() => {
+    apiFetch<DiscoverUser[]>("/api/users/discover").then((res) => {
+      if (res.success && res.data) {
+        setUsers(res.data);
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[85vh]">
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (index >= users.length) {
     return (
@@ -55,17 +60,28 @@ export default function SwipePage() {
 
   const handleDragEnd = (_: any, info: any) => {
     if (info.offset.x > 150) {
-      swipe("right");
+      swipe("RIGHT");
     } else if (info.offset.x < -150) {
-      swipe("left");
+      swipe("LEFT");
     }
   };
 
-  const swipe = (direction: "left" | "right") => {
+  const swipe = async (direction: "LEFT" | "RIGHT") => {
     setIsSwiping(true);
 
-    const finalX = direction === "right" ? 600 : -600;
+    const finalX = direction === "RIGHT" ? 600 : -600;
     x.set(finalX);
+
+    // Record swipe in backend
+    const res = await apiFetch<{ matched: boolean }>("/api/swipes", {
+      method: "POST",
+      body: JSON.stringify({ targetId: user.id, direction }),
+    });
+
+    if (res.success && res.data?.matched) {
+      setMatched(true);
+      setTimeout(() => setMatched(false), 2000);
+    }
 
     setTimeout(() => {
       setIndex((prev) => prev + 1);
@@ -74,8 +90,32 @@ export default function SwipePage() {
     }, 250);
   };
 
+  const allSkills = [
+    ...user.skillsToTeach.map((s) => s.name),
+    ...user.skillsToLearn.map((s) => s.name),
+  ];
+
+  const avatarSrc = user.avatarUrl || user.image;
+
   return (
-    <div className="flex items-center justify-center min-h-[85vh] px-6">
+    <div className="flex items-center justify-center min-h-[85vh] px-6 relative">
+
+      {/* Match overlay */}
+      <AnimatePresence>
+        {matched && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 rounded-3xl"
+          >
+            <div className="text-center text-white">
+              <h2 className="text-4xl font-bold">It's a Match! 🎉</h2>
+              <p className="mt-2 text-lg text-white/80">You both swiped right!</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.div
         key={user.id}
@@ -86,11 +126,15 @@ export default function SwipePage() {
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         className="relative w-full max-w-sm h-[520px] rounded-3xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing"
       >
-        {/* Background Image */}
-        <img
-          src={user.image}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {/* Background */}
+        {avatarSrc ? (
+          <img
+            src={avatarSrc}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600" />
+        )}
 
         {/* Dark Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -119,21 +163,23 @@ export default function SwipePage() {
               {user.name}
             </h2>
             <p className="text-sm text-gray-200 mt-1">
-              {user.bio}
+              {user.bio || "No bio yet"}
             </p>
           </div>
 
-          {/* Skills as Tinder Style Pills */}
-          <div className="flex flex-wrap gap-2">
-            {user.skills.map((skill, i) => (
-              <span
-                key={i}
-                className="px-3 py-1 text-xs bg-white/20 backdrop-blur-md rounded-full border border-white/30"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
+          {/* Skills as Pills */}
+          {allSkills.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {allSkills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-xs bg-white/20 backdrop-blur-md rounded-full border border-white/30"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
 
         </div>
 

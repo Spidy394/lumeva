@@ -88,6 +88,12 @@ export default function Stack({
   const shouldDisableDrag = mobileClickOnly && isMobile;
   const shouldEnableClick = sendToBackOnClick || shouldDisableDrag;
 
+  const [randomRotations, setRandomRotations] = useState<number[]>([]);
+
+  useEffect(() => {
+    setRandomRotations(Array.from({ length: Math.max(cards.length, 4) }, () => Math.random() * 10 - 5));
+  }, []);
+
   const [stack, setStack] = useState<{ id: number; content: React.ReactNode }[]>(() => {
     if (cards.length) {
       return cards.map((content, index) => ({ id: index + 1, content }));
@@ -174,7 +180,7 @@ export default function Stack({
       onMouseLeave={() => pauseOnHover && setIsPaused(false)}
     >
       {stack.map((card, index) => {
-        const randomRotate = randomRotation ? Math.random() * 10 - 5 : 0;
+        const randomRotate = randomRotation ? (randomRotations[index] ?? 0) : 0;
         return (
           <CardRotate
             key={card.id}
