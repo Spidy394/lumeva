@@ -1,5 +1,5 @@
-import AuthCard from "../authcard";
+import Auth from "../authcard";
 
 export default function LoginPage() {
-  return <AuthCard type="login" />;
+  return <Auth mode="login" />;
 }

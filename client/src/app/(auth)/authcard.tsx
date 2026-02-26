@@ -1,82 +1,100 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer";
 import Link from "next/link";
-import { useState } from "react";
 
 type Props = {
-  type: "login" | "register";
+  mode: "login" | "register";
 };
 
-export default function AuthCard({ type }: Props) {
-  const isLogin = type === "login";
+export default function Auth({ mode }: Props) {
+  const isLogin = mode === "login";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-600 to-purple-700 px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6">
 
+      {/* 🔥 BRANDING */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl text-white"
+        className="mb-10"
       >
-        <h1 className="text-3xl font-semibold mb-8 text-center">
-          {isLogin ? "Welcome Back 👋" : "Create Account 🚀"}
-        </h1>
+        <span className="text-5xl font-semibold tracking-tight text-violet-600">
+          Lumeva
+        </span>
+      </motion.div>
 
+      {/* AUTH CARD */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md bg-white rounded-2xl p-8 shadow-sm border"
+      >
+        {/* Header */}
+        <div className="space-y-2 mb-8">
+          <h1 className="text-2xl font-semibold">
+            {isLogin ? "Welcome back" : "Create your account"}
+          </h1>
+          <p className="text-sm text-gray-500">
+            {isLogin
+              ? "Login to continue building."
+              : "Start building with matched collaborators."}
+          </p>
+        </div>
+
+        {/* Form */}
         <div className="space-y-5">
-
           {!isLogin && (
             <input
+              type="text"
+              placeholder="Full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Full Name"
-              className="w-full px-4 py-3 rounded-xl bg-white/20 placeholder-white/70 focus:outline-none"
+              className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-600"
             />
           )}
 
           <input
+            type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full px-4 py-3 rounded-xl bg-white/20 placeholder-white/70 focus:outline-none"
+            className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-600"
           />
 
           <input
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="w-full px-4 py-3 rounded-xl bg-white/20 placeholder-white/70 focus:outline-none"
+            className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-600"
           />
 
-          <button className="w-full py-3 bg-white text-violet-700 font-semibold rounded-xl hover:opacity-90 transition">
-            {isLogin ? "Login" : "Register"}
+          <button className="w-full py-3 bg-black text-white rounded-xl text-sm font-medium hover:opacity-90 transition">
+            {isLogin ? "Login" : "Create account"}
           </button>
         </div>
 
-        <div className="mt-6 text-center text-sm text-white/80">
+        {/* Switch */}
+        <div className="mt-6 text-sm text-gray-500 text-center">
           {isLogin ? (
             <>
               Don’t have an account?{" "}
-              <Link
-                href="/register"
-                className="underline font-medium"
-              >
+              <Link href="/register" className="text-black font-medium">
                 Register
               </Link>
             </>
           ) : (
             <>
               Already have an account?{" "}
-              <Link
-                href="/login"
-                className="underline font-medium"
-              >
+              <Link href="/login" className="text-black font-medium">
                 Login
               </Link>
             </>
