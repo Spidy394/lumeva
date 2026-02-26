@@ -12,6 +12,33 @@ const images = [
   "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format",
 ];
 
+const demoUsers = [
+  {
+    id: 1,
+    name: "Ayan",
+    bio: "Full stack dev building SaaS.",
+    skills: ["React", "Node"],
+    image:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800",
+  },
+  {
+    id: 2,
+    name: "Riya",
+    bio: "UI/UX Designer crafting experiences.",
+    skills: ["Figma", "Brand"],
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800",
+  },
+  {
+    id: 3,
+    name: "Dev",
+    bio: "AI Engineer. ML + Product.",
+    skills: ["Python", "ML"],
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800",
+  },
+];
+
 export default function Home() {
   return (
     <div className="relative w-full text-black">
@@ -46,25 +73,54 @@ export default function Home() {
           />
         </h1>
 
-        <div className="relative mt-12 w-60 h-60 z-10">
-          <Stack
-            randomRotation
-            sensitivity={200}
-            sendToBackOnClick
-            autoplay
-            autoplayDelay={3000}
-            pauseOnHover={false}
-            cards={images.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt={`card-${i + 1}`}
-                className="w-full h-full object-cover rounded-xl shadow-lg"
-              />
-            ))}
-          />
-        </div>
+        <div className="relative mt-12 w-72 h-[520px] z-10">
+  <Stack
+    randomRotation
+    sensitivity={200}
+    sendToBackOnClick
+    autoplay
+    autoplayDelay={3000}
+    pauseOnHover={false}
+    cards={demoUsers.map((user) => (
+      <div
+        key={user.id}
+        className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl"
+      >
+        {/* Background */}
+        <img
+          src={user.image}
+          alt={user.name}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
 
+        {/* Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+
+        {/* Bottom Content */}
+        <div className="absolute bottom-6 left-6 right-6 text-white pointer-events-none">
+          <h2 className="text-2xl font-semibold">
+            {user.name}
+          </h2>
+
+          <p className="text-sm text-gray-200 mt-1">
+            {user.bio}
+          </p>
+
+          <div className="flex flex-wrap gap-2 mt-3">
+            {user.skills.map((skill) => (
+              <span
+                key={skill}
+                className="px-3 py-1 text-xs bg-white/20 backdrop-blur-md rounded-full border border-white/30"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+  />
+</div>
         <p className="mt-8 text-lg md:text-xl text-gray-700 max-w-2xl">
           Lumeva connects developers, designers, and creators based on real
           skills — not just profiles.

@@ -7,9 +7,9 @@ import { Heart, MessageCircle, UserPlus } from "lucide-react";
 const getGreeting = () => {
   const hour = new Date().getHours();
 
-  if (hour < 12) return "Good morning ☀️";
-  if (hour < 18) return "Good afternoon 🌤️";
-  return "Good evening 🌙";
+  if (hour < 12) return "Good morning ";
+  if (hour < 18) return "Good afternoon ";
+  return "Good evening ";
 };
 
 type Post = {
@@ -62,7 +62,7 @@ export default function FeedPage() {
       {/* Greeting */}
 <div className="space-y-1">
   <h1 className="text-2xl font-semibold">
-    {getGreeting()}, Builder 👋
+    {getGreeting()}, Builder 
   </h1>
   <p className="text-gray-500">
     What are you building today?

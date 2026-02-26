@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import CardNav from "../ui/cardnav";
+import { CardNavItem } from '../ui/cardnav';
 
 type NavLink = {
   label: string;
@@ -14,33 +15,56 @@ type NavItem = {
   links: NavLink[];
 };
 
-const navItems: NavItem[] = [
+const navItems: CardNavItem[] = [
   {
     label: "About",
-    bgColor: "#F5F3FF", // soft violet background
-    textColor: "#4C1D95", // deep violet text
+    bgColor: "#F5F3FF",
+    textColor: "#4C1D95",
     links: [
-      { label: "Company", ariaLabel: "About Company" },
-      { label: "Careers", ariaLabel: "About Careers" }
+      { 
+        label: "About Us",
+        ariaLabel: "About Us",
+        href: "/about"
+      },
     ]
   },
   {
     label: "Projects",
-    bgColor: "#FDF4FF", // soft pink tint
-    textColor: "#86198F", // magenta tone
+    bgColor: "#FDF4FF",
+    textColor: "#86198F",
     links: [
-      { label: "Featured", ariaLabel: "Featured Projects" },
-      { label: "Case Studies", ariaLabel: "Project Case Studies" }
+      {
+        label: "Featured",
+        ariaLabel: "Featured Projects",
+        href: "/projects/featured"
+      },
+      {
+        label: "Case Studies",
+        ariaLabel: "Project Case Studies",
+        href: "/projects/case-studies"
+      }
     ]
   },
   {
     label: "Contact",
-    bgColor: "#EEF2FF", // soft indigo tint
+    bgColor: "#EEF2FF",
     textColor: "#3730A3",
     links: [
-      { label: "Email", ariaLabel: "Email us" },
-      { label: "Twitter", ariaLabel: "Twitter" },
-      { label: "LinkedIn", ariaLabel: "LinkedIn" }
+      {
+        label: "Email",
+        ariaLabel: "Email us",
+        href: "/contact/email"
+      },
+      {
+        label: "Twitter",
+        ariaLabel: "Twitter",
+        href: "https://twitter.com"
+      },
+      {
+        label: "LinkedIn",
+        ariaLabel: "LinkedIn",
+        href: "https://linkedin.com"
+      }
     ]
   }
 ];
@@ -56,7 +80,6 @@ export default function MainNav() {
   buttonBgColor="#4C1D95"             // deep violet
   buttonTextColor="#ffffff"
   ease="power3.out"
-  theme="light"
 />
   );
 }
