@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Flame, MessageCircle, User } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, Flame, MessageCircle, User, LogOut } from "lucide-react";
 import { motion } from "framer";
+import { useSession, signOut } from "@/lib/auth-client";
 
 export default function AppLayout({
   children,
@@ -11,6 +12,23 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+
+  // Redirect to login if not authenticated
+  if (!isPending && !session) {
+    router.push("/login");
+    return null;
+  }
+
+  // Show nothing while loading session
+  if (isPending) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const navItems = [
     { href: "/feed", icon: Home, label: "feed" },
@@ -18,6 +36,11 @@ export default function AppLayout({
     { href: "/matches", icon: MessageCircle, label: "matches" },
     { href: "/profile", icon: User, label: "profile" },
   ];
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/login");
+  };
 
   return (
     <div className="h-screen flex bg-gray-50">
@@ -28,7 +51,7 @@ export default function AppLayout({
           Lumeva
         </h1>
 
-        <nav className="space-y-3 relative">
+        <nav className="space-y-3 relative flex-1">
           {navItems.map(({ href, icon: Icon, label }) => {
             const isActive = pathname === href;
 
@@ -72,6 +95,20 @@ export default function AppLayout({
             );
           })}
         </nav>
+
+        {/* User info + Logout */}
+        <div className="border-t pt-4 space-y-3">
+          <div className="text-sm text-gray-600 truncate px-2">
+            {session?.user?.name || session?.user?.email}
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-red-500 hover:text-red-600 transition px-2 text-sm"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main Content Area */}

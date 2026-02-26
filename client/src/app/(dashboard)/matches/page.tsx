@@ -1,129 +1,113 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { apiFetch } from "@/lib/api";
 
-type Match = {
-  id: number;
+type MatchedUser = {
+  id: string;
   name: string;
-  lastMessage: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  image: string | null;
+  skillsToTeach: { skillId: string; name: string }[];
+  skillsToLearn: { skillId: string; name: string }[];
 };
 
-const mockMatches: Match[] = [
-  { id: 1, name: "Ayan", lastMessage: "Let's build something cool 🚀" },
-  { id: 2, name: "Riya", lastMessage: "Loved your profile!" },
-  { id: 3, name: "Dev", lastMessage: "AI collab?" },
-];
-
-const mockMessages: Record<number, { from: string; text: string }[]> = {
-  1: [
-    { from: "them", text: "Hey! Interested in building SaaS?" },
-    { from: "me", text: "Absolutely." },
-  ],
-  2: [{ from: "them", text: "We should collaborate." }],
-  3: [{ from: "them", text: "AI startup idea?" }],
+type MatchItem = {
+  matchId: string;
+  matchedAt: string;
+  user: MatchedUser | null;
 };
 
 export default function MatchesPage() {
-  const [activeId, setActiveId] = useState<number>(1);
-  const [messages, setMessages] = useState(
-    mockMessages[1] || []
-  );
-  const [input, setInput] = useState("");
+  const [matches, setMatches] = useState<MatchItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const activeMatch = mockMatches.find(
-    (m) => m.id === activeId
-  );
+  useEffect(() => {
+    apiFetch<MatchItem[]>("/api/matches").then((res) => {
+      if (res.success && res.data) {
+        setMatches(res.data);
+      }
+      setLoading(false);
+    });
+  }, []);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[80vh]">
+        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-    const newMsg = { from: "me", text: input };
-
-    setMessages((prev) => [...prev, newMsg]);
-    setInput("");
-  };
+  if (matches.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[80vh] text-gray-500 gap-2">
+        <p className="text-lg">No matches yet</p>
+        <p className="text-sm">Start swiping to find your skill-swap partners! 🚀</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full flex">
+    <div className="h-full overflow-y-auto">
 
-      {/* LEFT PANEL */}
-      <div className="hidden md:block w-80 border-r bg-white overflow-y-auto">
-        <div className="p-6 font-semibold text-lg border-b">
-          Matches
+      <div className="p-6 md:p-10">
+        <h1 className="text-2xl font-semibold mb-6">Your Matches</h1>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {matches.map((match) => {
+            if (!match.user) return null;
+
+            const avatarSrc = match.user.avatarUrl || match.user.image;
+
+            return (
+              <div
+                key={match.matchId}
+                className="bg-white rounded-2xl shadow-sm p-5 space-y-4 hover:shadow-md transition"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                    {avatarSrc && (
+                      <img
+                        src={avatarSrc}
+                        alt={match.user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg">{match.user.name}</h3>
+                    <p className="text-sm text-gray-500 truncate">
+                      {match.user.bio || "No bio"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Skills */}
+                {match.user.skillsToTeach.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {match.user.skillsToTeach.map((s) => (
+                      <span
+                        key={s.skillId}
+                        className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full"
+                      >
+                        {s.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-400">
+                  Matched {new Date(match.matchedAt).toLocaleDateString()}
+                </p>
+              </div>
+            );
+          })}
         </div>
-
-        {mockMatches.map((match) => (
-          <div
-            key={match.id}
-            onClick={() => {
-              setActiveId(match.id);
-              setMessages(
-                mockMessages[match.id] || []
-              );
-            }}
-            className={`cursor-pointer px-6 py-4 hover:bg-gray-50 transition ${
-              activeId === match.id
-                ? "bg-violet-50"
-                : ""
-            }`}
-          >
-            <div className="font-medium">
-              {match.name}
-            </div>
-            <div className="text-sm text-gray-500 truncate">
-              {match.lastMessage}
-            </div>
-          </div>
-        ))}
       </div>
 
-      {/* RIGHT PANEL */}
-      <div className="flex-1 flex flex-col h-full">
-
-        {/* HEADER */}
-        <div className="shrink-0 border-b bg-white px-6 py-4 font-semibold">
-          {activeMatch?.name}
-        </div>
-
-        {/* MESSAGES */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 px-6 py-6 flex flex-col justify-end space-y-4">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`max-w-xs px-4 py-2 rounded-2xl ${
-                msg.from === "me"
-                  ? "ml-auto bg-gradient-to-r from-violet-600 to-purple-600 text-white"
-                  : "bg-white shadow-sm"
-              }`}
-            >
-              {msg.text}
-            </div>
-          ))}
-        </div>
-
-        {/* INPUT */}
-        <div className="shrink-0 border-t bg-white px-4 py-4 flex gap-3">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) =>
-              setInput(e.target.value)
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") sendMessage();
-            }}
-            className="flex-1 border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400"
-            placeholder="Type a message..."
-          />
-          <button
-            onClick={sendMessage}
-            className="px-5 bg-violet-600 text-white rounded-xl"
-          >
-            Send
-          </button>
-        </div>
-
-      </div>
     </div>
   );
 }
