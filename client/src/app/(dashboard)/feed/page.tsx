@@ -66,11 +66,7 @@ export default function FeedPage() {
       {/* Greeting */}
 <div className="space-y-1">
   <h1 className="text-2xl font-semibold">
-<<<<<<< HEAD
-    {getGreeting()}, Builder 
-=======
     {getGreeting()}, {userName} 👋
->>>>>>> a8f206fe5ec832a45acde21cedbdb7d42e3e757d
   </h1>
   <p className="text-gray-500">
     What are you building today?

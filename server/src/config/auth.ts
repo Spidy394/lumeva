@@ -13,6 +13,7 @@ export const auth = betterAuth({
       verification: schema.verifications,
     },
   }),
+  trustedOrigins: [process.env.CLIENT_URL ?? "http://localhost:3000"],
   emailAndPassword: {
     enabled: true,
   },

@@ -13,8 +13,6 @@ export default function AppLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-<<<<<<< HEAD
-=======
   const { data: session, isPending } = useSession();
 
   // Redirect to login if not authenticated
@@ -31,7 +29,6 @@ export default function AppLayout({
       </div>
     );
   }
->>>>>>> a8f206fe5ec832a45acde21cedbdb7d42e3e757d
 
   const navItems = [
     { href: "/feed", icon: Home, label: "feed" },
@@ -40,13 +37,8 @@ export default function AppLayout({
     { href: "/profile", icon: User, label: "profile" },
   ];
 
-<<<<<<< HEAD
-  const handleLogout = () => {
-    // later: clear token / session
-=======
   const handleLogout = async () => {
     await signOut();
->>>>>>> a8f206fe5ec832a45acde21cedbdb7d42e3e757d
     router.push("/login");
   };
 
@@ -61,10 +53,6 @@ export default function AppLayout({
           Lumeva
         </h1>
 
-<<<<<<< HEAD
-        {/* Navigation */}
-=======
->>>>>>> a8f206fe5ec832a45acde21cedbdb7d42e3e757d
         <nav className="space-y-3 relative flex-1">
           {navItems.map(({ href, icon: Icon, label }) => {
             const isActive = pathname === href;
@@ -110,17 +98,6 @@ export default function AppLayout({
           })}
         </nav>
 
-<<<<<<< HEAD
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="mt-auto flex items-center gap-3 px-4 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-red-500 transition"
-        >
-          <LogOut size={20} />
-          <span>Logout</span>
-        </button>
-
-=======
         {/* User info + Logout */}
         <div className="border-t pt-4 space-y-3">
           <div className="text-sm text-gray-600 truncate px-2">
@@ -134,7 +111,6 @@ export default function AppLayout({
             Logout
           </button>
         </div>
->>>>>>> a8f206fe5ec832a45acde21cedbdb7d42e3e757d
       </aside>
 
       {/* Main Content */}

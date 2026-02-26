@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   motion,
   useMotionValue,
   useTransform,
   AnimatePresence,
 } from "framer";
-import { apiFetch } from "@/lib/api";
+import { X, Heart } from "lucide-react";
 
 type DiscoverUser = {
   id: string;
@@ -19,11 +19,88 @@ type DiscoverUser = {
   skillsToLearn: { skillId: string; name: string }[];
 };
 
+const DUMMY_USERS: DiscoverUser[] = [
+  {
+    id: "dummy-1",
+    name: "Aisha Raza",
+    bio: "Full-stack dev building fintech tools. Love clean APIs and great UX.",
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80",
+    image: null,
+    skillsToTeach: [
+      { skillId: "s1", name: "React" },
+      { skillId: "s2", name: "Node.js" },
+    ],
+    skillsToLearn: [
+      { skillId: "s3", name: "UI Design" },
+      { skillId: "s4", name: "Figma" },
+    ],
+  },
+  {
+    id: "dummy-2",
+    name: "Dev Kapoor",
+    bio: "ML engineer passionate about recommendation systems and LLMs.",
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+    image: null,
+    skillsToTeach: [
+      { skillId: "s5", name: "Python" },
+      { skillId: "s6", name: "Machine Learning" },
+    ],
+    skillsToLearn: [
+      { skillId: "s7", name: "Next.js" },
+      { skillId: "s8", name: "TypeScript" },
+    ],
+  },
+  {
+    id: "dummy-3",
+    name: "Sara Malik",
+    bio: "Product designer crafting delightful mobile experiences.",
+    avatarUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80",
+    image: null,
+    skillsToTeach: [
+      { skillId: "s9", name: "Figma" },
+      { skillId: "s10", name: "UI/UX Design" },
+    ],
+    skillsToLearn: [
+      { skillId: "s11", name: "React Native" },
+      { skillId: "s12", name: "Tailwind CSS" },
+    ],
+  },
+  {
+    id: "dummy-4",
+    name: "Ayan Sheikh",
+    bio: "Backend engineer. Obsessed with distributed systems and Postgres.",
+    avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80",
+    image: null,
+    skillsToTeach: [
+      { skillId: "s13", name: "PostgreSQL" },
+      { skillId: "s14", name: "Go" },
+    ],
+    skillsToLearn: [
+      { skillId: "s15", name: "DevOps" },
+      { skillId: "s16", name: "Docker" },
+    ],
+  },
+  {
+    id: "dummy-5",
+    name: "Riya Joshi",
+    bio: "Indie hacker building SaaS tools. Currently learning AI integrations.",
+    avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80",
+    image: null,
+    skillsToTeach: [
+      { skillId: "s17", name: "Vue.js" },
+      { skillId: "s18", name: "Content Strategy" },
+    ],
+    skillsToLearn: [
+      { skillId: "s19", name: "LangChain" },
+      { skillId: "s20", name: "OpenAI API" },
+    ],
+  },
+];
+
 export default function SwipePage() {
-  const [users, setUsers] = useState<DiscoverUser[]>([]);
+  const [users] = useState<DiscoverUser[]>(DUMMY_USERS);
   const [index, setIndex] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [matched, setMatched] = useState(false);
 
   const x = useMotionValue(0);
@@ -31,27 +108,11 @@ export default function SwipePage() {
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
 
-  useEffect(() => {
-    apiFetch<DiscoverUser[]>("/api/users/discover").then((res) => {
-      if (res.success && res.data) {
-        setUsers(res.data);
-      }
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[85vh]">
-        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   if (index >= users.length) {
     return (
-      <div className="flex items-center justify-center h-[85vh] text-gray-500">
-        No more builders 👀
+      <div className="flex flex-col items-center justify-center h-[85vh] text-gray-500 gap-3">
+        <p className="text-lg">No more builders 👀</p>
+        <p className="text-sm text-gray-400">Add more skills to your profile to discover compatible partners!</p>
       </div>
     );
   }
@@ -67,18 +128,12 @@ export default function SwipePage() {
   };
 
   const swipe = async (direction: "LEFT" | "RIGHT") => {
+    if (isSwiping) return;
     setIsSwiping(true);
 
-    const finalX = direction === "RIGHT" ? 600 : -600;
-    x.set(finalX);
+    x.set(direction === "RIGHT" ? 600 : -600);
 
-    // Record swipe in backend
-    const res = await apiFetch<{ matched: boolean }>("/api/swipes", {
-      method: "POST",
-      body: JSON.stringify({ targetId: user.id, direction }),
-    });
-
-    if (res.success && res.data?.matched) {
+    if (direction === "RIGHT") {
       setMatched(true);
       setTimeout(() => setMatched(false), 2000);
     }
@@ -90,15 +145,10 @@ export default function SwipePage() {
     }, 250);
   };
 
-  const allSkills = [
-    ...user.skillsToTeach.map((s) => s.name),
-    ...user.skillsToLearn.map((s) => s.name),
-  ];
-
-  const avatarSrc = user.avatarUrl || user.image;
+  const avatarSrc = user.avatarUrl ?? user.image;
 
   return (
-    <div className="flex items-center justify-center min-h-[85vh] px-6 relative">
+    <div className="flex flex-col items-center justify-center min-h-[85vh] px-6 relative">
 
       {/* Match overlay */}
       <AnimatePresence>
@@ -110,7 +160,7 @@ export default function SwipePage() {
             className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 rounded-3xl"
           >
             <div className="text-center text-white">
-              <h2 className="text-4xl font-bold">It's a Match! 🎉</h2>
+              <h2 className="text-4xl font-bold">It&apos;s a Match! 🎉</h2>
               <p className="mt-2 text-lg text-white/80">You both swiped right!</p>
             </div>
           </motion.div>
@@ -130,10 +180,15 @@ export default function SwipePage() {
         {avatarSrc ? (
           <img
             src={avatarSrc}
+            alt={`${user.name}'s profile`}
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600" />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+            <span className="text-7xl text-white/30 font-bold">
+              {user.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
         )}
 
         {/* Dark Gradient Overlay */}
@@ -167,23 +222,63 @@ export default function SwipePage() {
             </p>
           </div>
 
-          {/* Skills as Pills */}
-          {allSkills.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {allSkills.map((skill, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 text-xs bg-white/20 backdrop-blur-md rounded-full border border-white/30"
-                >
-                  {skill}
-                </span>
-              ))}
+          {/* Skills as Labeled Pills */}
+          {user.skillsToTeach.length > 0 && (
+            <div>
+              <p className="text-xs text-green-300 mb-1">Can teach</p>
+              <div className="flex flex-wrap gap-2">
+                {user.skillsToTeach.map((skill) => (
+                  <span
+                    key={`teach-${skill.skillId}`}
+                    className="px-3 py-1 text-xs bg-green-500/20 backdrop-blur-md rounded-full border border-green-400/30 text-green-200"
+                  >
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {user.skillsToLearn.length > 0 && (
+            <div>
+              <p className="text-xs text-violet-300 mb-1">Wants to learn</p>
+              <div className="flex flex-wrap gap-2">
+                {user.skillsToLearn.map((skill) => (
+                  <span
+                    key={`learn-${skill.skillId}`}
+                    className="px-3 py-1 text-xs bg-white/20 backdrop-blur-md rounded-full border border-white/30"
+                  >
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
         </div>
 
       </motion.div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-8 mt-8">
+        <button
+          onClick={() => swipe("LEFT")}
+          disabled={isSwiping}
+          className="w-16 h-16 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-red-50 hover:border-red-300 transition disabled:opacity-50 group"
+          aria-label="Pass"
+        >
+          <X size={28} className="text-red-500 group-hover:scale-110 transition-transform" />
+        </button>
+
+        <button
+          onClick={() => swipe("RIGHT")}
+          disabled={isSwiping}
+          className="w-16 h-16 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-green-50 hover:border-green-300 transition disabled:opacity-50 group"
+          aria-label="Like"
+        >
+          <Heart size={28} className="text-green-500 group-hover:scale-110 transition-transform" />
+        </button>
+      </div>
 
     </div>
   );
